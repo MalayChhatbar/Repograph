@@ -11,4 +11,5 @@ coverage/
 *.db
 *.sqlite3
 *.pyc
+*.tsbuildinfo
 .DS_Store

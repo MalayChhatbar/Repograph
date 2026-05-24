@@ -1,15 +1,25 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { api } from "./api";
-import type { ExplainResult, ImpactResult, SearchResult, SummaryResult } from "./types";
+import type {
+  DeadCodeRecord,
+  ExplainResult,
+  ImpactResult,
+  RouteRecord,
+  SearchResult,
+  SummaryResult,
+} from "./types";
 
-type TabKey = "overview" | "search" | "impact" | "cycles" | "explain";
+type TabKey = "overview" | "search" | "graph" | "impact" | "cycles" | "routes" | "dead" | "explain";
 
 const tabs: Array<{ key: TabKey; label: string }> = [
   { key: "overview", label: "Overview" },
   { key: "search", label: "Search" },
+  { key: "graph", label: "Graph" },
   { key: "impact", label: "Impact" },
   { key: "cycles", label: "Cycles" },
+  { key: "routes", label: "Routes" },
+  { key: "dead", label: "Dead Code" },
   { key: "explain", label: "Explain" },
 ];
 
@@ -22,11 +32,34 @@ export function App() {
   const [impact, setImpact] = useState<ImpactResult | null>(null);
   const [explain, setExplain] = useState<ExplainResult | null>(null);
   const [cycles, setCycles] = useState<string[][]>([]);
+  const [routes, setRoutes] = useState<RouteRecord[]>([]);
+  const [deadCode, setDeadCode] = useState<DeadCodeRecord[]>([]);
   const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+
+  async function refreshOverview() {
+    setLoading(true);
+    setError("");
+    try {
+      const [nextSummary, nextCycles, nextRoutes, nextDeadCode] = await Promise.all([
+        api.summary(),
+        api.cycles(),
+        api.routes(),
+        api.deadCode(),
+      ]);
+      setSummary(nextSummary);
+      setCycles(nextCycles);
+      setRoutes(nextRoutes);
+      setDeadCode(nextDeadCode);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    api.summary().then(setSummary).catch((err: Error) => setError(err.message));
-    api.cycles().then(setCycles).catch(() => undefined);
+    void refreshOverview();
   }, []);
 
   useEffect(() => {
@@ -81,11 +114,30 @@ export function App() {
             <h2>
               {activeTab === "overview" && "Repository overview"}
               {activeTab === "search" && "Search the index"}
+              {activeTab === "graph" && "Graph neighborhood"}
               {activeTab === "impact" && "Impact analysis"}
               {activeTab === "cycles" && "Dependency cycles"}
+              {activeTab === "routes" && "Route map"}
+              {activeTab === "dead" && "Potential dead code"}
               {activeTab === "explain" && "File explain"}
             </h2>
             <p>{error || "Built for onboarding, architecture reading, and safer code changes."}</p>
+          </div>
+          <div className="topbar-actions">
+            <button
+              type="button"
+              className="action"
+              onClick={() => {
+                setLoading(true);
+                api
+                  .index()
+                  .then(() => refreshOverview())
+                  .catch((err: Error) => setError(err.message))
+                  .finally(() => setLoading(false));
+              }}
+            >
+              {loading ? "Indexing..." : "Refresh Index"}
+            </button>
           </div>
         </header>
 
@@ -142,6 +194,40 @@ export function App() {
           </section>
         )}
 
+        {activeTab === "graph" && (
+          <section className="panel-grid graph-grid">
+            <article className="panel">
+              <h3>Center node</h3>
+              <div className="focus-file">{selectedFile}</div>
+            </article>
+            <article className="panel">
+              <h3>Depends on</h3>
+              <SimpleList items={explain?.imports ?? []} onSelect={setSelectedFile} />
+            </article>
+            <article className="panel">
+              <h3>Used by</h3>
+              <SimpleList items={impact?.direct_dependents ?? []} onSelect={setSelectedFile} />
+            </article>
+            <article className="panel">
+              <h3>Neighborhood notes</h3>
+              <ul className="list">
+                <li>
+                  <span>Indirect dependents</span>
+                  <strong>{impact?.indirect_dependents.length ?? 0}</strong>
+                </li>
+                <li>
+                  <span>Related tests</span>
+                  <strong>{impact?.related_tests.length ?? 0}</strong>
+                </li>
+                <li>
+                  <span>Routes in file</span>
+                  <strong>{explain?.routes.length ?? 0}</strong>
+                </li>
+              </ul>
+            </article>
+          </section>
+        )}
+
         {activeTab === "impact" && impact && (
           <section className="panel-grid impact-grid">
             <article className="panel">
@@ -190,6 +276,42 @@ export function App() {
                 </div>
               ))}
             </div>
+          </section>
+        )}
+
+        {activeTab === "routes" && (
+          <section className="panel">
+            <ul className="list result-list">
+              {routes.map((route) => (
+                <li key={`${route.method}:${route.path}:${route.file_path}`}>
+                  <button type="button" className="result" onClick={() => setSelectedFile(route.file_path)}>
+                    <strong>
+                      {route.method} {route.path}
+                    </strong>
+                    <span>
+                      {route.framework} in {route.file_path}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {activeTab === "dead" && (
+          <section className="panel">
+            <ul className="list result-list">
+              {deadCode.map((item) => (
+                <li key={item.qualified_name}>
+                  <button type="button" className="result" onClick={() => setSelectedFile(item.path)}>
+                    <strong>{item.qualified_name}</strong>
+                    <span>
+                      {item.path} · confidence {item.confidence.toFixed(2)} · {item.reasons.join(", ")}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
           </section>
         )}
 
@@ -267,4 +389,3 @@ function SimpleList({
     </ul>
   );
 }
-

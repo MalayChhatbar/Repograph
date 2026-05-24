@@ -50,3 +50,17 @@ export type ExplainResult = {
   related_tests: TestLinkRecord[];
 };
 
+export type RouteRecord = {
+  path: string;
+  method: string;
+  file_path: string;
+  symbol_name: string;
+  framework: string;
+};
+
+export type DeadCodeRecord = {
+  path: string;
+  qualified_name: string;
+  confidence: number;
+  reasons: string[];
+};

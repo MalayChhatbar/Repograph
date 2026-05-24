@@ -105,7 +105,25 @@ input {
 }
 
 .topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: start;
   margin-bottom: 20px;
+}
+
+.topbar-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.action {
+  padding: 10px 14px;
+  border: 1px solid rgba(230, 237, 243, 0.14);
+  border-radius: 8px;
+  background: rgba(31, 111, 235, 0.16);
+  color: inherit;
+  cursor: pointer;
 }
 
 .panel-grid {
@@ -116,6 +134,10 @@ input {
 
 .impact-grid {
   grid-template-columns: minmax(260px, 0.9fr) repeat(3, minmax(220px, 1fr));
+}
+
+.graph-grid {
+  grid-template-columns: repeat(4, minmax(220px, 1fr));
 }
 
 .panel {
@@ -153,6 +175,15 @@ input {
 .risk {
   margin: 18px 0;
   color: #7ee787;
+}
+
+.focus-file {
+  margin-top: 18px;
+  padding: 18px;
+  border-radius: 8px;
+  background: rgba(31, 111, 235, 0.12);
+  font-size: 1.1rem;
+  word-break: break-word;
 }
 
 .list {
@@ -226,6 +257,10 @@ input {
   }
 
   .impact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .graph-grid {
     grid-template-columns: 1fr;
   }
 }
