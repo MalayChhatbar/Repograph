@@ -48,6 +48,32 @@ uv tool install --editable .
 repograph --help
 ```
 
+## Distribution plan
+
+Recommended order for public distribution:
+
+1. GitHub Releases for versioned source archives and release notes
+2. PyPI so developers can install with `uv tool install repograph`
+3. Homebrew tap for macOS and Linux users who prefer `brew`
+4. Winget for Windows users who prefer `winget`
+
+RepoGraph is a Python CLI/TUI project, so npm is not a recommended distribution target.
+If you ever publish to npm, it should only be as a thin wrapper around an already published
+Python release, not as the primary install channel.
+
+Once published to PyPI, the intended install command becomes:
+
+```bash
+uv tool install repograph
+```
+
+If you later publish a Homebrew tap or Winget package, document those commands here too:
+
+```bash
+brew install <owner>/tap/repograph
+winget install <identifier>
+```
+
 ## Current v1 capabilities
 
 - index Python and JS/TS files into SQLite + FTS5
