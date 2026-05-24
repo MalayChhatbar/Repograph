@@ -13,14 +13,14 @@ RepoGraph helps developers answer:
 ## Backend
 
 - `repograph.cli`: user-facing commands
-- `repograph.api`: HTTP surface for the React app
+- `repograph.tui`: terminal workbench for repository exploration
 - `repograph.core`: indexing and analysis
 - `repograph.storage`: SQLite schema and queries
 - `repograph.parsers`: language-specific extraction
 
-## Frontend
+## TUI
 
-The frontend is a React app that behaves like a repository workbench with:
+The TUI is a Textual app that behaves like a repository workbench with:
 
 - overview
 - search
@@ -37,4 +37,3 @@ The frontend is a React app that behaves like a repository workbench with:
 - `calls`: symbol edges
 - `routes`: framework routes
 - `test_links`: related tests with confidence
-

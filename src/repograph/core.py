@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import subprocess
-from collections import Counter, deque
+from collections import deque
 from pathlib import Path
 
 from repograph.config import DEFAULT_IGNORES, default_database_path
@@ -53,6 +53,18 @@ class RepoGraphService:
 
     def explain(self, path: str):
         return self.store.explain(path)
+
+    def graph(self, path: str) -> dict[str, object]:
+        explanation = self.explain(path)
+        impact = self.impact(path)
+        return {
+            "center": path,
+            "depends_on": explanation.imports,
+            "used_by": impact.direct_dependents,
+            "indirect_dependents": impact.indirect_dependents,
+            "routes": explanation.routes,
+            "related_tests": impact.related_tests,
+        }
 
     def impact(self, path: str) -> ImpactResult:
         direct = self.store.dependents_for_file(path)

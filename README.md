@@ -1,16 +1,15 @@
 # RepoGraph
 
 RepoGraph is a local-first code intelligence engine for understanding large repositories.
-It indexes source code into SQLite, exposes a CLI and API, and powers a React UI for
-exploring architecture, search results, impacts, cycles, and PR risk.
+It indexes source code into SQLite and exposes a CLI plus terminal TUI for
+exploring architecture, search results, impacts, cycles, routes, and PR risk.
 
 ## V1 focus
 
 - Python + JavaScript/TypeScript indexing
 - SQLite-backed repository graph
 - CLI for indexing and analysis
-- FastAPI server for a React frontend
-- React UI for overview, search, graph, impact, cycles, and explain
+- Textual TUI for overview, search, graph, impact, cycles, and explain
 - Local-first workflow with optional Git-based risk analysis
 
 ## Architecture
@@ -18,15 +17,10 @@ exploring architecture, search results, impacts, cycles, and PR risk.
 ```text
 Python backend
   - CLI (Typer)
-  - API (FastAPI)
+  - TUI (Textual)
   - Core analysis
   - SQLite storage
   - Python/JS parsers
-
-React frontend
-  - Overview dashboard
-  - Search and graph exploration
-  - Impact and cycles views
 ```
 
 ## Quick start
@@ -36,19 +30,8 @@ python -m venv .venv
 .venv\Scripts\activate
 pip install -e .[dev]
 repograph index .
-repograph serve --reload
+repograph tui .
 ```
-
-In a second terminal:
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Backend API: `http://127.0.0.1:8000`
-Frontend UI: `http://127.0.0.1:4173`
 
 ## Current v1 capabilities
 
@@ -60,7 +43,7 @@ Frontend UI: `http://127.0.0.1:4173`
 - detect import cycles
 - suggest likely dead code with confidence scores
 - score PR risk from local Git diffs
-- explore the graph from a React workbench
+- explore the graph from a terminal TUI
 
 ## Product decisions baked into v1
 
@@ -85,6 +68,7 @@ repograph routes
 repograph dead-code
 repograph explain src/api/users.py
 repograph pr-risk main..HEAD
+repograph tui .
 ```
 
 ## Design decisions answered

@@ -5,12 +5,11 @@ from __future__ import annotations
 from pathlib import Path
 
 import typer
-import uvicorn
 from rich.console import Console
 from rich.table import Table
 
-from repograph.api import create_app
 from repograph.core import RepoGraphService
+from repograph.tui import run_tui
 
 app = typer.Typer(help="RepoGraph code intelligence engine.")
 console = Console()
@@ -53,6 +52,20 @@ def search(query: str, path: Path = typer.Argument(Path("."))) -> None:
     table.add_column("Snippet")
     for row in results:
         table.add_row(row.file_path, row.snippet)
+    console.print(table)
+
+
+@app.command()
+def symbols(path: Path = typer.Argument(Path("."))) -> None:
+    """List indexed symbols grouped by file."""
+    service = _service(path)
+    summary = service.summary()
+    table = Table(title="Indexed Symbols")
+    table.add_column("File")
+    table.add_column("Symbol Count")
+    for file_path in summary.top_files:
+        count = len(service.explain(file_path).symbols)
+        table.add_row(file_path, str(count))
     console.print(table)
 
 
@@ -168,10 +181,9 @@ def dead_code_command(path: Path = typer.Argument(Path("."))) -> None:
 
 
 @app.command()
-def serve(path: Path = Path("."), host: str = "127.0.0.1", port: int = 8000, reload: bool = False) -> None:
-    """Run the FastAPI server."""
-    application = create_app(path.resolve())
-    uvicorn.run(application, host=host, port=port, reload=reload)
+def tui(path: Path = typer.Argument(Path(".")), focus: str = typer.Option("", "--focus")) -> None:
+    """Launch the terminal UI."""
+    run_tui(path.resolve(), focus=focus)
 
 
 if __name__ == "__main__":
