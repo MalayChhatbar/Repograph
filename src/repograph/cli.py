@@ -21,7 +21,7 @@ def _service(root: Path) -> RepoGraphService:
 
 
 @app.command()
-def index(path: Path = Path(".")) -> None:
+def index(path: Path = typer.Argument(Path("."))) -> None:
     """Index the repository into SQLite."""
     service = _service(path)
     service.index()
@@ -29,7 +29,7 @@ def index(path: Path = Path(".")) -> None:
 
 
 @app.command()
-def summary(path: Path = Path(".")) -> None:
+def summary(path: Path = typer.Argument(Path("."))) -> None:
     """Show repository summary."""
     result = _service(path).summary()
     table = Table(title="RepoGraph Summary")
@@ -45,7 +45,7 @@ def summary(path: Path = Path(".")) -> None:
 
 
 @app.command()
-def search(query: str, path: Path = Path(".")) -> None:
+def search(query: str, path: Path = typer.Argument(Path("."))) -> None:
     """Search indexed repository content."""
     results = _service(path).search(query)
     table = Table(title=f"Search: {query}")
@@ -57,7 +57,7 @@ def search(query: str, path: Path = Path(".")) -> None:
 
 
 @app.command()
-def impact(file_path: str, path: Path = Path(".")) -> None:
+def impact(file_path: str, path: Path = typer.Argument(Path("."))) -> None:
     """Show impact analysis for a file."""
     result = _service(path).impact(file_path)
     console.print(f"[bold]{result.file_path}[/bold]")
@@ -81,7 +81,7 @@ def impact(file_path: str, path: Path = Path(".")) -> None:
 
 
 @app.command("cycles")
-def cycles_command(path: Path = Path(".")) -> None:
+def cycles_command(path: Path = typer.Argument(Path("."))) -> None:
     """Show import cycles."""
     cycles = _service(path).cycles()
     if not cycles:
@@ -94,7 +94,7 @@ def cycles_command(path: Path = Path(".")) -> None:
 
 
 @app.command()
-def explain(file_path: str, path: Path = Path(".")) -> None:
+def explain(file_path: str, path: Path = typer.Argument(Path("."))) -> None:
     """Explain a file's role in the graph."""
     result = _service(path).explain(file_path)
     console.print(f"[bold]{result.file_path}[/bold]")
@@ -117,7 +117,7 @@ def explain(file_path: str, path: Path = Path(".")) -> None:
 
 
 @app.command("pr-risk")
-def pr_risk(revision_range: str, path: Path = Path(".")) -> None:
+def pr_risk(revision_range: str, path: Path = typer.Argument(Path("."))) -> None:
     """Compute PR risk from a git revision range."""
     result = _service(path).pr_risk(revision_range)
     console.print(f"Revision range: {result['revision_range']}")
@@ -134,9 +134,45 @@ def pr_risk(revision_range: str, path: Path = Path(".")) -> None:
             console.print(f"- {item}")
 
 
+@app.command("routes")
+def routes_command(path: Path = typer.Argument(Path("."))) -> None:
+    """List detected routes."""
+    routes = _service(path).routes()
+    table = Table(title="Routes")
+    table.add_column("Method")
+    table.add_column("Path")
+    table.add_column("Framework")
+    table.add_column("File")
+    for route in routes:
+        table.add_row(route.method, route.path, route.framework, route.file_path)
+    console.print(table)
+
+
+@app.command("dead-code")
+def dead_code_command(path: Path = typer.Argument(Path("."))) -> None:
+    """Show likely dead code with confidence."""
+    findings = _service(path).dead_code()
+    table = Table(title="Potential Dead Code")
+    table.add_column("Symbol")
+    table.add_column("File")
+    table.add_column("Confidence")
+    table.add_column("Reasons")
+    for finding in findings:
+        table.add_row(
+            str(finding["qualified_name"]),
+            str(finding["path"]),
+            f"{float(finding['confidence']):.2f}",
+            ", ".join(str(reason) for reason in finding["reasons"]),
+        )
+    console.print(table)
+
+
 @app.command()
 def serve(path: Path = Path("."), host: str = "127.0.0.1", port: int = 8000, reload: bool = False) -> None:
     """Run the FastAPI server."""
     application = create_app(path.resolve())
     uvicorn.run(application, host=host, port=port, reload=reload)
 
+
+if __name__ == "__main__":
+    app()

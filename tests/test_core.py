@@ -34,3 +34,15 @@ def test_cycles_empty_for_fixture(tmp_path: Path) -> None:
     service.index()
 
     assert service.cycles() == []
+
+
+def test_routes_and_dead_code(tmp_path: Path) -> None:
+    fixture_root = Path("tests/fixtures/sample_repo").resolve()
+    service = RepoGraphService(fixture_root, db_path=tmp_path / "graph.db")
+    service.index()
+
+    routes = service.routes()
+    dead_code = service.dead_code()
+
+    assert len(routes) == 2
+    assert any(item["qualified_name"].endswith(":create_user_route") for item in dead_code)

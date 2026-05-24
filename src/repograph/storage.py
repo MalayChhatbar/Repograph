@@ -304,3 +304,34 @@ class GraphStore:
             related_tests=self.related_tests_for_file(path),
         )
 
+    def all_symbol_counts(self) -> list[tuple[str, str, int]]:
+        return [
+            (row["path"], row["qualified_name"], row["ref_count"])
+            for row in self.connection.execute(
+                """
+                SELECT s.path, s.qualified_name, COUNT(fs.path) AS ref_count
+                FROM symbols s
+                LEFT JOIN file_search fs ON fs.content MATCH '"' || s.name || '"'
+                GROUP BY s.path, s.qualified_name
+                ORDER BY ref_count ASC, s.qualified_name ASC
+                """
+            )
+        ]
+
+    def all_routes(self) -> list[RouteRecord]:
+        return [
+            RouteRecord(
+                path=row["path"],
+                method=row["method"],
+                file_path=row["file_path"],
+                symbol_name=row["symbol_name"],
+                framework=row["framework"],
+            )
+            for row in self.connection.execute(
+                """
+                SELECT path, method, file_path, symbol_name, framework
+                FROM routes
+                ORDER BY file_path, method, path
+                """
+            )
+        ]

@@ -7,8 +7,8 @@ dist/
 build/
 .coverage
 coverage/
+.pytest-tmp/
 *.db
 *.sqlite3
 *.pyc
 .DS_Store
-

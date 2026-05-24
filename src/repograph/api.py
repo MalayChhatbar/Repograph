@@ -46,6 +46,14 @@ def create_app(root: Path | None = None) -> FastAPI:
     def cycles():
         return service.cycles()
 
+    @app.get("/routes")
+    def routes():
+        return service.routes()
+
+    @app.get("/dead-code")
+    def dead_code():
+        return service.dead_code()
+
     @app.get("/explain/{file_path:path}")
     def explain(file_path: str):
         details = service.explain(file_path)
@@ -61,4 +69,3 @@ def create_app(root: Path | None = None) -> FastAPI:
 
 
 app = create_app()
-

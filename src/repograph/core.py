@@ -118,6 +118,30 @@ class RepoGraphService:
             "suggested_tests": suggested_tests,
         }
 
+    def dead_code(self) -> list[dict[str, object]]:
+        results: list[dict[str, object]] = []
+        for path, qualified_name, ref_count in self.store.all_symbol_counts():
+            if ref_count > 1:
+                continue
+            confidence = 0.75
+            reasons = ["no static references found outside the declaring file"]
+            lower_name = qualified_name.lower()
+            if any(keyword in lower_name for keyword in ("route", "handler", "main", "app")):
+                confidence = 0.35
+                reasons.append("looks like an entry point, confidence reduced")
+            results.append(
+                {
+                    "path": path,
+                    "qualified_name": qualified_name,
+                    "confidence": confidence,
+                    "reasons": reasons,
+                }
+            )
+        return sorted(results, key=lambda item: (-float(item["confidence"]), str(item["qualified_name"])))
+
+    def routes(self):
+        return self.store.all_routes()
+
     def _iter_source_files(self):
         for path in self.root.rglob("*"):
             if not path.is_file():
