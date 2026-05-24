@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+node_modules/
+dist/
+build/
+.coverage
+coverage/
+*.db
+*.sqlite3
+*.pyc
+.DS_Store
+
