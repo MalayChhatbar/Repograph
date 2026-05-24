@@ -26,11 +26,26 @@ Python backend
 ## Quick start
 
 ```bash
-python -m venv .venv
-.venv\Scripts\activate
-pip install -e .[dev]
-repograph index .
-repograph tui .
+uv sync --dev
+uv run repograph index .
+uv run repograph tui .
+```
+
+## Install and run with uv
+
+For local development:
+
+```bash
+uv sync --dev
+uv run repograph --help
+uv run pytest tests --basetemp .pytest-tmp
+```
+
+For a tool-style install:
+
+```bash
+uv tool install --editable .
+repograph --help
 ```
 
 ## Current v1 capabilities
@@ -59,16 +74,16 @@ The earlier design questions are answered in the implementation like this:
 ## CLI examples
 
 ```bash
-repograph index .
-repograph summary
-repograph search login
-repograph impact src/auth/session.py
-repograph cycles
-repograph routes
-repograph dead-code
-repograph explain src/api/users.py
-repograph pr-risk main..HEAD
-repograph tui .
+uv run repograph index .
+uv run repograph summary .
+uv run repograph search login .
+uv run repograph impact src/auth/session.py .
+uv run repograph cycles .
+uv run repograph routes .
+uv run repograph dead-code .
+uv run repograph explain src/api/users.py .
+uv run repograph pr-risk main..HEAD .
+uv run repograph tui .
 ```
 
 ## Design decisions answered
