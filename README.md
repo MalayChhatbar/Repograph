@@ -74,6 +74,13 @@ brew install <owner>/tap/repograph
 winget install <identifier>
 ```
 
+Release and packaging details live in [RELEASING.md](/D:/repograph/RELEASING.md).
+
+This repository also includes:
+
+- a GitHub Actions release workflow at [release.yml](/D:/repograph/.github/workflows/release.yml)
+- a starter Homebrew formula at [packaging/homebrew/repograph.rb](/D:/repograph/packaging/homebrew/repograph.rb)
+
 ## Current v1 capabilities
 
 - index Python and JS/TS files into SQLite + FTS5
