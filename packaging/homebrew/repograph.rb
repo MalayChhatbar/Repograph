@@ -2,7 +2,7 @@ class Repograph < Formula
   include Language::Python::Virtualenv
 
   desc "Local-first code intelligence CLI/TUI for indexing repositories into a dependency graph"
-  homepage "https://github.com/YOUR_GITHUB_USERNAME/repograph"
+  homepage "https://github.com/MalayChhatbar/repograph"
   url "https://files.pythonhosted.org/packages/source/r/repograph/repograph-0.1.0.tar.gz"
   sha256 "REPLACE_WITH_SOURCE_TARBALL_SHA256"
   license "MIT"
