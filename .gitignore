@@ -8,7 +8,7 @@ dist/
 build/
 .coverage
 coverage/
-.pytest-tmp/
+.pytest-tmp*/
 *.db
 *.sqlite3
 *.pyc
