@@ -85,15 +85,3 @@ uv run repograph explain src/api/users.py .
 uv run repograph pr-risk main..HEAD .
 uv run repograph tui .
 ```
-
-## Design decisions answered
-
-RepoGraph v1 assumes:
-
-- onboarding and impact analysis are the first killer workflows
-- local-first and offline by default
-- optional config instead of required config
-- general repository navigation before deep framework specialization
-- Git diff and basic churn are part of v1
-- confidence-based dead code and explainable risk scoring
-- basic monorepo package awareness later, not blocking v1
